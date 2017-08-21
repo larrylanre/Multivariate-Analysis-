@@ -1,28 +1,25 @@
 ###### Practicum 2 : Regis University ######
 
 ###################
-# Title : Oil and Gas Production Analysis and Predictive inference with R and Spotfire
+# Title : Application of Multivariate analysis in Oil and Gas data with R and Spotfire
 # Data Source: IHS 
 # Author : Olanrewaju Salami
-# MSDS692 Data Science Practicum 1
+# MSDS692 Data Science Practicum II
 ###################
 
 ##############Packages#############
-library(RCurl)
-library(rpart)
-install.packages("stats")
+library(plyr)
+library(neuralnet)
+library(MASS)
 library(stats) 
 library(readr)
 
 ### Import dataset 
-Reduced_Oil_and_Gas_Production <- read_csv("C:/Users/Ayo/Desktop/Ethics/Practicum1/Reduced Oil and Gas Production.csv")
-setwd("C:/Users/Ayo/Desktop/Ethics/Practicum1/Reduced Oil and Gas Production.csv")
+subp <- read_csv("C:/Users/Ayo/Desktop/Ethics/Practicum1/SubPracticumnew.csv")
+setwd("C:/Users/Ayo/Desktop/Ethics/Practicum1/SubPracticumnew.csv")
 
-##### Cleaning dataset for Clusterying 
-mydata <- Reduced_Oil_and_Gas_Production
-library(plyr)
-library(neuralnet)
-library(MASS)
+##### Cleaning dataset for analysis
+
 subp <- SubPracticumnew
 subp
 apply(subp,2,function(x) sum(is.na(x)))
