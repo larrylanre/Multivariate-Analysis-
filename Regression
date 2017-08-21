@@ -1,1 +1,16 @@
-
+library(plyr)
+library(neuralnet)
+library(MASS)
+subp <- SubPracticumnew
+subp
+apply(subp,2,function(x) sum(is.na(x)))
+subp[subp=='?'] <- NA
+su <- na.omit(subp)
+apply(su,2,function(x) sum(is.na(x)))
+su
+index <- sample(1:nrow(su),round(0.70*nrow(su)))
+train <- su[index,]
+test <- su[-index,]
+gm.fit <- glm(TotalProppant~Liquid+Gas,family=gaussian, data=train)
+summary(gm.fit)
+exp(coef(gm.fit))
