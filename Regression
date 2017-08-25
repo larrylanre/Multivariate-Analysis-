@@ -27,35 +27,58 @@ subp[subp=='?'] <- NA
 su <- na.omit(subp) #Remove NA's
 apply(su,2,function(x) sum(is.na(x)))
 su
+
+##Rank Feature By Importance using KNN
+set.seed(7879)
+##Prepare training scheme
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+# Train the model using knn
+model <- train(TotalProppant~., data=su, method="knn", preProcess="scale", trControl=control)
+#Determine variable importance
+importance <- varImp(model, scale=FALSE)
+#Genarate Variable importance
+print(importance)
+# plot importance
+plot(importance)
+
 #Randomly splitting the data into a train and a test set of 70/30, and fit a linear regression model and test it on the test set.
-#We apply the gml() function instead of lm() due to the nature of the dataset and the purpose of cross validation.
 index <- sample(1:nrow(su),round(0.70*nrow(su)))
 train <- su[index,]
 test <- su[-index,]
+#Apply the gml() function instead of lm() due to the nature of the dataset and the purpose of cross validation.
 gm.fit <- glm(TotalProppant~Liquid+Gas,family=gaussian, data=train)
 summary(gm.fit)
+
+#Determinning the coefficient of regression
 exp(coef(gm.fit))
-#We could interpret this as the odds of su occurring at Liquid = 0 is 1924993165639986364800686264288.00 and when Gas = 0 is 8429555.33. 
-#Exponentiating the the Liquid or Proppant coefficient tells us the expected increase in the odds of su for each unit of Liquid and Gas.
-#An odds ratio of 1 indicates no change, whereas an odds ratio of 2 indicates a doubling.
-#As we can see the Oil has high affinity for the amount of proppant pumped compared to Gas
+#This output (coefficient) is interpreted as the odds of su occurring at Liquid = 0 is 1924993165639986364800686264288.00 and when Gas = 0 is 8429555.33. 
+#Exponentiating the Liquid or Proppant coefficient tells us the expected increase in the odds of su for each unit of Liquid and Gas.
+#When the odds ratio is 1, it indicates no change, whereas when odds ratio is 2 indicates a doubling. So, the higher the odd ratio the high the Oil affinity for the amount of proppant pumped compared to Gas 
+
 ###Computes confidence intervals for one or more parameters in a fitted model.
 exp(confint.default(gm.fit))
-#At 95% interval, we see Oil has a greater relationship with the amount of proppant pumped than gas 
+#At 95% interval, we see Oil has a greater relationship with the amount of proppant pumped than that of Gas 
+
+#Determinning the MSE for the fitted model
 pr.gm <- predict(gm.fit,test)
 MSE.gm <- sum((pr.gm - test$TotalProppant)^2)/nrow(test)
 MSE.gm
-#Predicting the total amount of proppant required for certain amount of oil volume
+
+###Predicting the total amount of proppant required for certain amount of Oil volume.
+#We try to determine the amount of proppant required for certain amount of liquid and Gas that we expect as an output. 
+#Example: If we want Oil and Gas Volume of 1000 barrel and 300 MCF, what is the required Proppant that we need to pump to achieve this amount of Oil and Gas?
 newProppant <- data.frame(Liquid= 1000, Gas = 300)
 predict(gm.fit,newProppant,type="response")
 
+#Perform ANOVA on the fitted dataset
 anova(gm.fit, test="Chisq")
 predict <- predict(gm.fit, type = 'response')
 summary(predict)
+
 #confusion matrix
 table(train$TotalProppant, predict > 0.5)
 
-#plot glm
+#Plot glm
 library(ggplot2)
 ggplot(train, aes(x=Liquid, y=TotalProppant)) + geom_point() + 
   stat_smooth(method="glm",colour='red',size = 2, se=FALSE)
@@ -63,11 +86,12 @@ ggplot(train, aes(x=Liquid, y=TotalProppant)) + geom_point() +
 ggplot(train, aes(x=Gas, y=TotalProppant)) + geom_point() + 
   stat_smooth(method="glm", se=FALSE)
 
-#Liquid Plot
-#predict gives the predicted value in terms of logits
+#Liquid (Oil)
+#Predict gives the predicted value in terms of logits
 plot.dat <- data.frame(prob = su$TotalProppant/su$Liquid,
                        Liquid = su$Liquid,
                        fit = predict(gm.fit, su))
+
 #convert those logit values to probabilities
 plot.dat$fit_prob <- exp(plot.dat$fit)/(1+exp(plot.dat$fit))
 
@@ -81,6 +105,7 @@ ggplot(plot.dat, aes(x=Liquid, y=prob)) +
 plot.dat <- data.frame(prob = su$Liquid/su$TotalProppant,
                        TotalProppant = su$TotalProppant,
                        fit = predict(gm.fit, su))
+
 #convert those logit values to probabilities
 plot.dat$fit_prob <- exp(plot.dat$fit)/(1+exp(plot.dat$fit))
 
@@ -90,10 +115,12 @@ ggplot(plot.dat, aes(x=TotalProppant, y=prob)) +
   geom_line(aes(x=TotalProppant, y=fit_prob))
 
 #From the plot, Note that the change in probabilities is constant
-#This means that it there is relationship between TotalProppant and the probabilities with one number.
+#This means that there is relationship between TotalProppant and the probabilities with one number.
 
 
-NNETWORK
+###### NEURAL NETWORK #########
+## Applying NN model to the dataset
+
 #Preparing to fit the neural network
 library(reshape)
 source_url('https://gist.githubusercontent.com/fawda123/7471137/raw/466c1474d0a505ff044412703516c34f1a4684a5/nnet_plot_update.r')
@@ -105,22 +132,32 @@ subp[subp=='?'] <- NA
 su <- na.omit(subp)
 apply(su,2,function(x) sum(is.na(x)))
 su
+
+## Creat Max and Min of dataset for scalling purpose
 maxs <- apply(su, 2, max) 
 mins <- apply(su, 2, min)
 str(su)
+
+## Change Data type to numeric quantity
 su$TotalProppant <- as.numeric(su$TotalProppant)
 su$Liquid <- as.numeric(su$Liquid)
 su$Gas <- as.numeric(su$Gas)
 #su$WellName <- NULL
-#scaled <- as.data.frame(scale(su, center = mins, scale = maxs - mins))
+
+##Scalled the data set
 scaled <- as.data.frame(su, center = TRUE, scale = TRUE)
+#Randomly splitting the data into a train and a test set of 70/30, and fit a linear regression model and test it on the test set.
 index <- sample(1:nrow(su),round(0.70*nrow(su)))
 train2 <- scaled[index,]
 test2 <- scaled[-index,]
-mod4<-train(TotalProppant~.,method='nnet',data=train2,linout=T)
-plot.nnet(mod4,nid=T)
+mod<-train(TotalProppant~.,method='nnet',data=train2,linout=T)
+plot.nnet(mod,nid=T)
 
 
+
+
+
+##### Predicting with NN
 library(reshape)
 library(car)
 library(caret)
