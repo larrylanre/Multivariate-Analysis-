@@ -118,6 +118,8 @@ ggplot(plot.dat, aes(x=TotalProppant, y=prob)) +
 #This means that there is relationship between TotalProppant and the probabilities with one number.
 
 
+
+
 ###### NEURAL NETWORK #########
 ## Applying NN model to the dataset
 
@@ -152,10 +154,6 @@ train2 <- scaled[index,]
 test2 <- scaled[-index,]
 mod<-train(TotalProppant~.,method='nnet',data=train2,linout=T)
 plot.nnet(mod,nid=T)
-
-
-
-
 
 ##### Predicting with NN
 library(reshape)
