@@ -179,18 +179,20 @@ fit <- train(TotalProppant ~ Liquid + Gas, data = scaled,
 predict <- predict(fit, newdata = test)
 rmse <- sqrt(mean((predict - test$TotalProppant)^2)) 
 rmse
+
 #Mean Square Error for NN
 nn <- predict(fit,test)
 MSE2 <- sum((nn - test$TotalProppant)^2)/nrow(test)
 MSE2
 
-#we then compare the two MSEs
+#Comparing MSEs output of Regression to that of NN
 print(paste(MSE.gm,MSE2))
 
 #Predicting the total amount of proppant required for certain amount of oil volume
 newProppant <- data.frame(Liquid= 5000, Gas = 300)
 predict(fit,newProppant,type="raw")
 
+###Plotting the Two methods and compared both - Regression and NN
 par(mfrow=c(1,2))
 plot(test$TotalProppant,predict,col='red',main='Real vs predicted NN',pch=18,cex=0.7)
 abline(0,1,lwd=2)
@@ -199,12 +201,14 @@ plot(test$TotalProppant,pr.gm,col='blue',main='Real vs predicted lm',pch=18, cex
 abline(0,1,lwd=2)
 legend('bottomright',legend='LM',pch=18,col='blue', bty='n', cex=1)
 
-#plot nn
-# The predictor vars must be scaled data for the ANN fitting
+#Plot the Neurons for both scaled and unscaled dataset
+
+# The predictor varable must be scaled data for NN fitting
 scaled <- as.data.frame(scale(sa$TotalProppant))
 min <- min(sa$TotalProppant,sa$Liquid,sa$Gas)
 max <- max(sa$TotalProppant,sa$Liquid,sa$Gas)
-# response var must be scaled to [0 < resp < 1]
+
+# response variable must be scaled to [0 < resp < 1]
 scaled$TotalProppant <- scale(sa$TotalProppant
                               , center = min
                               , scale = max - min)
@@ -214,5 +218,5 @@ scaled$Liquid <- scale(sa$Liquid
 scaled$Gas <- scale(sa$Gas
                     , center = min
                     , scale = max - min)
-mod4<-train(TotalProppant~.,method='nnet',data=scaled,linout=T)
-plot.nnet(mod4,nid=T)
+mod1<-train(TotalProppant~.,method='nnet',data=scaled,linout=T)
+plot.nnet(mod1,nid=T)
