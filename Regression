@@ -7,6 +7,13 @@
 # MSDS692 Data Science Practicum II
 ###################
 
+
+##### Hypothesis #########
+
+Ho: The Amount of Proppant (Sand) pumped increases the volume of oil produced
+H1: The Amount of Proppant (Sand) pumped do not increase the volume of oil produce
+
+
 ##############Packages#############
 library(plyr)
 library(neuralnet)
@@ -52,6 +59,7 @@ test <- su[-index,]
 #Apply the gml() function instead of lm() due to the nature of the dataset and the purpose of cross validation.
 gm.fit <- glm(TotalProppant~Liquid+Gas,family=gaussian, data=train)
 summary(gm.fit)
+## Comment on Output: From the regression output, the P value for both Oil and Gas indicate that there is  a relationship between the amount of Proppant pumped and the expected output of Oil and Gas. 
 
 #Determinning the coefficient of regression
 exp(coef(gm.fit))
@@ -73,6 +81,7 @@ MSE.gm
 #Example: If we want Oil and Gas Volume of 1000 barrel and 300 MCF, what is the required Proppant that we need to pump to achieve this amount of Oil and Gas?
 newProppant <- data.frame(Liquid= 1000, Gas = 300)
 predict(gm.fit,newProppant,type="response")
+##From the output, 2.1M proppant will produce 1000bbl of Oil while 2.4M proppant will produce 5000bbl of Oil. The same analysis apply to Gas
 
 #Perform ANOVA on the fitted dataset
 anova(gm.fit, test="Chisq")
@@ -194,6 +203,7 @@ print(paste(MSE.gm,MSE2))
 #Predicting the total amount of proppant required for certain amount of oil volume
 newProppant <- data.frame(Liquid= 5000, Gas = 300)
 predict(fit,newProppant,type="raw")
+##From the output, 1.86M proppant will produce 1000bbl of Oil while 1.89M proppant will produce 5000bbl of Oil. The same analysis apply to Gas
 
 ###Plotting the Two methods and compared both - Regression and NN
 par(mfrow=c(1,2))
@@ -223,3 +233,9 @@ scaled$Gas <- scale(sa$Gas
                     , scale = max - min)
 mod1<-train(TotalProppant~.,method='nnet',data=scaled,linout=T)
 plot.nnet(mod1,nid=T)
+
+####### Conclusion #######
+
+#From this analysis, we can conclude that we accept the null hypothesis that the Amount of Proppant (Sand) pumped increases the volume of oil produced. The higher the amount of proppant pumped the higher the oil recovery. 
+#Between the two model - Regression and NN, we also agree that the Neural Network model has a better performance compared to the Regression model and the NN model delivers less amount of expected proppant volume compared to the regression model.
+
