@@ -1,10 +1,7 @@
-###### Practicum 2 : Regis University ######
-
 ###################
 # Title : Application of Multivariate analysis in Oil and Gas data with R and Spotfire
 # Data Source: IHS 
-# Author : Olanrewaju Salami
-# MSDS692 Data Science Practicum II
+# Author : Larry Salami
 ###################
 
 
@@ -22,11 +19,11 @@ library(stats)
 library(readr)
 
 ### Import dataset 
-subp <- read_csv("C:/Users/Ayo/Desktop/Ethics/Practicum1/SubPracticumnew.csv")
-setwd("C:/Users/Ayo/Desktop/Ethics/Practicum1/SubPracticumnew.csv")
+subp <- read_csv("C:/Users/Ayo/Desktop/Sub.csv")
+setwd("C:/Users/Ayo/Desktop/Sub.csv")
 
 ##### Import and Clean dataset for analysis
-subp <- SubPracticumnew
+subp <- Sub
 subp
 #Check for missing datapoint, and fix the dataset.
 apply(subp,2,function(x) sum(is.na(x)))
@@ -141,7 +138,7 @@ ggplot(plot.dat, aes(x=TotalProppant, y=prob)) +
 library(reshape)
 source_url('https://gist.githubusercontent.com/fawda123/7471137/raw/466c1474d0a505ff044412703516c34f1a4684a5/nnet_plot_update.r')
 set.seed(62872)
-subp <- SubPracticumnew
+subp <- Sub
 subp
 apply(subp,2,function(x) sum(is.na(x)))
 subp[subp=='?'] <- NA
